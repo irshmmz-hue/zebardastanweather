@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>اپلیکیشن آب و هوا</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-container">
+    <h1>اپلیکیشن آب و هوا</h1>
+    <p class="subtitle">نام یک شهر را وارد کنید تا وضعیت آب‌وهوای آن نمایش داده شود.</p>
+
+    <div class="search-wrapper">
+      <div class="search-box">
+        <input
+          type="text"
+          id="cityInput"
+          placeholder="مثلاً: تهران"
+          autocomplete="off"
+        />
+        <button id="getWeatherBtn">جستجو</button>
+      </div>
+
+      <!-- لیست پیشنهاد شهرها -->
+      <div id="suggestions" class="suggestions hidden"></div>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <div id="weatherCard" class="weather-card hidden">
+      <h2 id="cityName"></h2>
+      <p><strong>دما:</strong> <span id="temperature"></span></p>
+      <p><strong>وضعیت هوا:</strong> <span id="description"></span></p>
+      <p><strong>سرعت باد:</strong> <span id="windSpeed"></span></p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

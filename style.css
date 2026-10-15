@@ -1,0 +1,173 @@
+/* ===== تنظیمات پایه ===== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: Tahoma, sans-serif;
+    background: linear-gradient(135deg, #74b9ff, #a29bfe);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    direction: rtl;
+    color: #222;
+    padding: 16px;
+  }
+  
+  /* ===== کانتینر اصلی ===== */
+  .app-container {
+    width: 100%;
+    max-width: 460px;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* ===== عنوان و توضیح ===== */
+  h1 {
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  
+  .subtitle {
+    text-align: center;
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 20px;
+    line-height: 1.8;
+  }
+  
+  /* ===== بخش جستجو ===== */
+  .search-wrapper {
+    position: relative;
+  }
+  
+  .search-box {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .search-box input {
+    flex: 1;
+    padding: 12px 14px;
+    border: 1px solid #dfe6e9;
+    border-radius: 12px;
+    font-size: 1rem;
+    outline: none;
+    transition: 0.3s;
+    font-family: Tahoma, sans-serif;
+    background: #fff;
+  }
+  
+  .search-box input:focus {
+    border-color: #6c5ce7;
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12);
+  }
+  
+  .search-box button {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 12px;
+    background: #6c5ce7;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+    font-family: Tahoma, sans-serif;
+    white-space: nowrap;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-shadow: none;
+    outline: none;
+  }
+  
+  .search-box button:hover {
+    background: #5a4bd6;
+  }
+  
+  .search-box button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  /* ===== پیشنهادها ===== */
+  .suggestions {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    left: 0;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    z-index: 20;
+    max-height: 240px;
+    overflow-y: auto;
+  }
+  
+  .suggestion-item {
+    padding: 12px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f3f5;
+    transition: background 0.2s;
+    font-size: 0.95rem;
+  }
+  
+  .suggestion-item:hover {
+    background: #f8f9ff;
+  }
+  
+  .suggestion-item:last-child {
+    border-bottom: none;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  /* ===== پیام‌ها ===== */
+  .message {
+    min-height: 24px;
+    margin: 14px 0;
+    font-size: 0.95rem;
+    text-align: center;
+    color: #d63031;
+  }
+  
+  /* ===== کارت اطلاعات آب و هوا ===== */
+  .weather-card {
+    background: #f8f9fa;
+    border-radius: 16px;
+    padding: 18px;
+    border: 1px solid #e9ecef;
+    line-height: 2;
+  }
+  
+  .weather-card h2 {
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+    color: #2d3436;
+    text-align: center;
+  }
+  
+  /* ===== ریسپانسیو ===== */
+  @media (max-width: 480px) {
+    .app-container {
+      padding: 18px;
+    }
+  
+    .search-box {
+      flex-direction: column;
+    }
+  
+    .search-box button {
+      width: 100%;
+    }
+  }
