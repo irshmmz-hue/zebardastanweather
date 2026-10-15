@@ -21,8 +21,6 @@
         />
         <button id="getWeatherBtn">جستجو</button>
       </div>
-
-      <!-- لیست پیشنهاد شهرها -->
       <div id="suggestions" class="suggestions hidden"></div>
     </div>
 
@@ -34,8 +32,18 @@
       <p><strong>وضعیت هوا:</strong> <span id="description"></span></p>
       <p><strong>سرعت باد:</strong> <span id="windSpeed"></span></p>
     </div>
+
+    <!-- پیش‌بینی سه‌روزه -->
+    <div id="forecastCard" class="forecast-card hidden">
+      <h3>پیش‌بینی روزهای آینده</h3>
+      <div class="forecast-row" id="forecastRow"></div>
+    </div>
   </div>
 
   <script src="script.js"></script>
+
+  <!-- GoatCounter Analytics -->
+  <script data-goatcounter="https://zebardastanweather.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
