@@ -435,3 +435,65 @@ body {
   outline: 2px solid #7dd3fc;
   outline-offset: 3px;
 }
+/* چیدمان عمودی: آب‌وهوا بالا، بازخورد پایین */
+.app {
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* بازخورد کوچک‌تر و هماهنگ با ظاهر روشن برنامه */
+.feedback-box {
+  width: 100%;
+  max-width: 380px;
+  margin: 0;
+  padding: 10px 14px;
+  background: transparent;
+  color: #536274;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+.feedback-box summary {
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 1.8;
+}
+
+/* پس از کلیک، فرم روی زمینهٔ روشن باز می‌شود */
+.feedback-box[open] {
+  background: #ffffff;
+}
+
+.feedback-box .feedback-description {
+  margin: 12px 0;
+  color: #536274;
+  font-size: 12px;
+}
+
+.feedback-box .feedback-field label {
+  color: #35465b;
+  font-size: 12px;
+}
+
+.feedback-box .feedback-form {
+  gap: 10px;
+}
+
+.feedback-box .feedback-field input,
+.feedback-box .feedback-field textarea {
+  padding: 9px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.feedback-box #sendFeedbackBtn {
+  padding: 10px;
+  background: #52677d;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.feedback-box #sendFeedbackBtn:hover {
+  background: #405469;
+}
