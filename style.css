@@ -266,3 +266,61 @@ body {
   color: inherit;
   font-size: 11px;
 }
+/* عنوان باد سمت راست، عددها سمت چپ */
+#windSpeed {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  direction: rtl;
+}
+
+.wind-values {
+  direction: ltr;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.wind-values small {
+  font-size: 10px;
+  color: #777;
+}
+
+/* کمینه و بیشینه زیر هم */
+.fc-temperatures {
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+/* عدد و عنوان هرکدام در یک خط */
+.fc-temperatures .fc-temp-min,
+.fc-temperatures .fc-temp-max {
+  flex-direction: row;
+  justify-content: center;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.fc-temperatures small {
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.fc-temperatures span {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* رنگ‌های واضح‌تر */
+.fc-temperatures .fc-temp-min {
+  color: #087bd3;
+}
+
+.fc-temperatures .fc-temp-max {
+  color: #e53935;
+}
