@@ -41,8 +41,8 @@ function clearWeather() {
   temperature.textContent = "";
   description.textContent = "";
   windSpeed.textContent = "";
-  weatherIcon.textContent = "☀️";
-  forecastRow.innerHTML = "";
+  weatherIcon.innerHTML = getWeatherEmoji(0);
+    forecastRow.innerHTML = "";
   forecastCard.classList.add("hidden");
 }
 
@@ -76,19 +76,77 @@ function getWeatherDescription(code) {
   };
   return map[code] || "نامشخص";
 }
-
 function getWeatherEmoji(code) {
-  if (code === 0) return "☀️";
-  if (code === 1 || code === 2) return "🌤️";
-  if (code === 3) return "☁️";
-  if (code === 45 || code === 48) return "🌫️";
-  if (code >= 51 && code <= 57) return "🌦️";
-  if (code >= 61 && code <= 67) return "🌧️";
-  if (code >= 71 && code <= 77) return "❄️";
-  if (code >= 80 && code <= 82) return "🌧️";
-  if (code >= 85 && code <= 86) return "🌨️";
-  if (code >= 95) return "⛈️";
-  return "🌡️";
+  const sun = `
+    <g stroke="#f59e0b" stroke-width="3" stroke-linecap="round">
+      <path d="M32 5v5 M32 46v5 M9 28h5 M50 28h5
+               M16 12l4 4 M44 40l4 4
+               M16 44l4-4 M44 16l4-4"/>
+      <circle cx="32" cy="28" r="12" fill="#fbbf24"/>
+    </g>`;
+
+  const cloud = `
+    <path d="M16 43h33a10 10 0 0 0 0-20
+             15 15 0 0 0-28-3
+             12 12 0 0 0-5 23Z"
+             fill="#69c9ff" stroke="#1685cf"
+             stroke-width="2" stroke-linejoin="round"/>`;
+
+  const rain = `
+    <path d="M22 48l-3 7 M34 48l-3 7 M46 48l-3 7"
+          stroke="#2196f3" stroke-width="3"
+          stroke-linecap="round"/>`;
+
+  const snow = `
+    <g fill="#38bdf8">
+      <circle cx="21" cy="52" r="3"/>
+      <circle cx="33" cy="56" r="3"/>
+      <circle cx="45" cy="52" r="3"/>
+    </g>`;
+
+  const fog = `
+    <path d="M12 48h40 M17 54h30 M22 60h20"
+          stroke="#94a3b8" stroke-width="3"
+          stroke-linecap="round"/>`;
+
+  const lightning = `
+    <path d="M33 39l-8 13h8l-4 11 16-18h-10l5-6Z"
+          fill="#facc15" stroke="#d97706"
+          stroke-width="1.5" stroke-linejoin="round"/>`;
+
+  let drawing;
+
+  if (code === 0) {
+    drawing = sun;
+  } else if (code === 1 || code === 2) {
+    drawing = sun + cloud;
+  } else if (code === 3) {
+    drawing = cloud;
+  } else if (code === 45 || code === 48) {
+    drawing = cloud + fog;
+  } else if (
+    (code >= 71 && code <= 77) ||
+    code === 85 || code === 86
+  ) {
+    drawing = cloud + snow;
+  } else if ([95, 96, 99].includes(code)) {
+    drawing = cloud + lightning;
+  } else if (
+    (code >= 51 && code <= 67) ||
+    (code >= 80 && code <= 82)
+  ) {
+    drawing = cloud + rain;
+  } else {
+    drawing = cloud;
+  }
+
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg"
+         width="1em" height="1em" viewBox="0 0 64 64"
+         role="img" aria-label="${getWeatherDescription(code)}"
+         style="display:inline-block;vertical-align:middle">
+      ${drawing}
+    </svg>`;
 }
 
 function buildDisplayName(location) {
@@ -218,9 +276,44 @@ async function getWeather() {
       longitude = selectedLocation.lon;
       displayName = selectedLocation.name;
     } else {
-      const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=fa&format=json`;
-      const geoRes = await fetch(geoUrl);
-      const geoData = await geoRes.json();
+      const normalizedCity = city
+  .normalize("NFKC")
+  .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
+  .replace(/ي/g, "ی")
+  .replace(/ك/g, "ک")
+  .replace(/\u200C/g, " ")
+  .replace(/\s+/g, " ")
+  .trim();
+
+// نام جایگزین برای شهرهایی که جست‌وجوی فارسی‌شان مشکل دارد
+const cityAliases = {
+  "بوشهر": "Bushehr"
+};
+
+const searchNames = [normalizedCity];
+
+if (cityAliases[normalizedCity]) {
+  searchNames.push(cityAliases[normalizedCity]);
+}
+
+let geoData = { results: [] };
+
+for (const searchName of searchNames) {
+  const geoUrl =
+    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchName)}&count=1&language=fa&format=json`;
+
+  const geoRes = await fetch(geoUrl);
+
+  if (!geoRes.ok) {
+    throw new Error("ارتباط با سرویس جست‌وجوی شهر برقرار نشد.");
+  }
+
+  geoData = await geoRes.json();
+
+  if (geoData.results?.length) {
+    break;
+  }
+}
 
       if (!geoData.results || geoData.results.length === 0) {
         throw new Error("شهر پیدا نشد.");
@@ -248,8 +341,14 @@ async function getWeather() {
     cityName.textContent = displayName;
     temperature.textContent = `${temp}°`;
     description.textContent = getWeatherDescription(code);
-    windSpeed.innerHTML = `${windKmh} km/h <small style="color:#666">(${windMs} m/s)</small>`;
-    weatherIcon.textContent = getWeatherEmoji(code);
+    windSpeed.innerHTML = `
+  <span>سرعت باد</span>
+  <span class="wind-values">
+    ${windKmh} km/h
+    <small>(${windMs} m/s)</small>
+  </span>
+`;
+    weatherIcon.innerHTML = getWeatherEmoji(code);
 
     displayForecast(weatherData.daily);
     openModal();
