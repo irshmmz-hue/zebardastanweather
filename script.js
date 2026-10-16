@@ -161,23 +161,42 @@ async function fetchCitySuggestions(query) {
 
 function displayForecast(daily) {
   forecastRow.innerHTML = "";
-  const labels = ["روز اول", "روز دوم", "روز سوم"];
 
-  for (let i = 0; i < 3; i++) {
+  const labels = ["فردا", "پس‌فردا", "سه روز دیگر"];
+
+  // شماره صفر مربوط به امروز است؛ از شماره یک شروع می‌کنیم.
+  for (let i = 1; i <= 3; i++) {
     const item = document.createElement("div");
     item.className = "forecast-item";
+
+    const maxTemp = Math.round(daily.temperature_2m_max[i]);
+    const minTemp = Math.round(daily.temperature_2m_min[i]);
+
     item.innerHTML = `
-      <div class="fc-emoji">${getWeatherEmoji(daily.weather_code[i])}</div>
-      <div class="fc-hours">${labels[i]}</div>
-      <div class="fc-temp-max">${Math.round(daily.temperature_2m_max[i])}°</div>
-      <div class="fc-temp-min">${Math.round(daily.temperature_2m_min[i])}°</div>
+      <div class="fc-emoji">
+        ${getWeatherEmoji(daily.weather_code[i])}
+      </div>
+
+      <div class="fc-hours">${labels[i - 1]}</div>
+
+      <div class="fc-temperatures">
+        <div class="fc-temp-min">
+          <span>${minTemp}°</span>
+          <small>↓ کمینه</small>
+        </div>
+
+        <div class="fc-temp-max">
+          <span>${maxTemp}°</span>
+          <small>↑ بیشینه</small>
+        </div>
+      </div>
     `;
+
     forecastRow.appendChild(item);
   }
 
   forecastCard.classList.remove("hidden");
 }
-
 async function getWeather() {
   const city = cityInput.value.trim();
 
@@ -213,7 +232,7 @@ async function getWeather() {
       displayName = buildDisplayName(location);
     }
 
-    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=3`;
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=4`;
     const weatherRes = await fetch(weatherUrl);
     const weatherData = await weatherRes.json();
 
