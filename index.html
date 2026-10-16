@@ -12,12 +12,74 @@
     <div class="search-box">
       <h1>اپلیکیشن آب و هوا</h1>
 
-      <input id="cityInput" type="text" placeholder="نام شهر را وارد کنید" autocomplete="off" />
+      <input
+        id="cityInput"
+        type="text"
+        placeholder="نام شهر را وارد کنید"
+        autocomplete="off"
+      />
       <button id="getWeatherBtn">دریافت آب و هوا</button>
 
       <div id="suggestions" class="suggestions hidden"></div>
       <p id="message" class="message"></p>
     </div>
+
+    <!-- بخش بازخورد کاربران -->
+    <details class="feedback-box">
+      <summary>ثبت نظر یا گزارش مشکل</summary>
+
+      <p class="feedback-description">
+        اگر نام شهری پیدا نشد یا مشکلی مشاهده کردید، اینجا بنویسید.
+        برای ارسال پیام نیازی به تلگرام نیست.
+      </p>
+
+      <form
+        id="feedbackForm"
+        class="feedback-form"
+        action="https://formspree.io/f/xqpewjez"
+        method="POST"
+      >
+        <div class="feedback-field">
+          <label for="feedbackName">نام شما (اختیاری)</label>
+          <input
+            id="feedbackName"
+            name="name"
+            type="text"
+            autocomplete="name"
+            maxlength="100"
+            placeholder="نام شما"
+          />
+        </div>
+
+        <div class="feedback-field">
+          <label for="feedbackEmail">ایمیل برای پاسخ (اختیاری)</label>
+          <input
+            id="feedbackEmail"
+            name="email"
+            type="email"
+            autocomplete="email"
+            dir="ltr"
+            placeholder="name@example.com"
+          />
+        </div>
+
+        <div class="feedback-field">
+          <label for="feedbackMessage">متن پیام (الزامی)</label>
+          <textarea
+            id="feedbackMessage"
+            name="message"
+            rows="4"
+            maxlength="5000"
+            placeholder="نظر، پیشنهاد یا مشکل را بنویسید…"
+            required
+          ></textarea>
+        </div>
+
+        <button id="sendFeedbackBtn" type="submit">
+          ارسال بازخورد
+        </button>
+      </form>
+    </details>
   </div>
 
   <div id="weatherModal" class="modal hidden">
@@ -39,5 +101,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=2"></script></body>
+  <script src="script.js?v=2"></script>
+</body>
 </html>
