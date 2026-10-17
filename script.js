@@ -8,6 +8,7 @@ const closeModalBtn = document.getElementById("closeModalBtn");
 
 const cityName = document.getElementById("cityName");
 const temperature = document.getElementById("temperature");
+const feelsLike = document.getElementById("feelsLike");
 const description = document.getElementById("description");
 const windSpeed = document.getElementById("windSpeed");
 const weatherIcon = document.getElementById("weatherIcon");
@@ -20,6 +21,33 @@ const forecastRow = document.getElementById("forecastRow");
 
 let debounceTimer = null;
 let selectedLocation = null;
+let suggestionRequestId = 0;
+let isLoading = false;
+
+// نمایش عدد و علامت درجه به صورت چپ‌به‌راست
+function formatTemperature(value) {
+  if (value == null || !Number.isFinite(Number(value))) {
+    return "نامشخص";
+  }
+
+  return `\u2066${Math.round(Number(value))}°\u2069`;
+}
+
+function normalizeCityName(value) {
+  return value
+    .normalize("NFKC")
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
+    .replace(/ي/g, "ی")
+    .replace(/ك/g, "ک")
+    .replace(/\u200C/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// نام جایگزین برای شهرهایی که جست‌وجوی فارسی‌شان مشکل دارد
+const cityAliases = {
+  "بوشهر": "Bushehr"
+};
 
 function showMessage(text, isError = true) {
   message.textContent = text;
@@ -44,8 +72,14 @@ function clearWeather() {
   temperature.textContent = "";
   description.textContent = "";
   windSpeed.textContent = "";
-  weatherIcon.innerHTML = getWeatherEmoji(0);
-    forecastRow.innerHTML = "";
+  weatherIcon.innerHTML = "";
+
+  if (feelsLike) feelsLike.textContent = "";
+  if (cityLocalTime) cityLocalTime.textContent = "";
+  if (weatherUpdatedAt) weatherUpdatedAt.textContent = "";
+  if (humidity) humidity.textContent = "";
+
+  forecastRow.innerHTML = "";
   forecastCard.classList.add("hidden");
 }
 
@@ -60,14 +94,17 @@ function getWeatherDescription(code) {
     51: "نم‌نم باران خفیف",
     53: "نم‌نم باران متوسط",
     55: "نم‌نم باران شدید",
-    56: "باران یخ‌زده خفیف",
-    57: "باران یخ‌زده شدید",
+    56: "نم‌نم باران یخ‌زده خفیف",
+    57: "نم‌نم باران یخ‌زده شدید",
     61: "باران خفیف",
     63: "باران متوسط",
     65: "باران شدید",
+    66: "باران یخ‌زده خفیف",
+    67: "باران یخ‌زده شدید",
     71: "برف خفیف",
     73: "برف متوسط",
     75: "برف شدید",
+    77: "دانه‌های برف",
     80: "رگبار باران خفیف",
     81: "رگبار باران متوسط",
     82: "رگبار باران شدید",
@@ -77,8 +114,10 @@ function getWeatherDescription(code) {
     96: "رعد و برق همراه با تگرگ خفیف",
     99: "رعد و برق همراه با تگرگ شدید"
   };
+
   return map[code] || "نامشخص";
 }
+
 function getWeatherEmoji(code) {
   const sun = `
     <g stroke="#f59e0b" stroke-width="3" stroke-linecap="round">
@@ -92,8 +131,8 @@ function getWeatherEmoji(code) {
     <path d="M16 43h33a10 10 0 0 0 0-20
              15 15 0 0 0-28-3
              12 12 0 0 0-5 23Z"
-             fill="#69c9ff" stroke="#1685cf"
-             stroke-width="2" stroke-linejoin="round"/>`;
+          fill="#69c9ff" stroke="#1685cf"
+          stroke-width="2" stroke-linejoin="round"/>`;
 
   const rain = `
     <path d="M22 48l-3 7 M34 48l-3 7 M46 48l-3 7"
@@ -129,7 +168,8 @@ function getWeatherEmoji(code) {
     drawing = cloud + fog;
   } else if (
     (code >= 71 && code <= 77) ||
-    code === 85 || code === 86
+    code === 85 ||
+    code === 86
   ) {
     drawing = cloud + snow;
   } else if ([95, 96, 99].includes(code)) {
@@ -154,37 +194,79 @@ function getWeatherEmoji(code) {
 
 function buildDisplayName(location) {
   const parts = [location.name];
+
   if (location.admin1 && location.admin1 !== location.name) {
-    const cleanAdmin = location.admin1.replace(/^استان\s+/, "").trim();
-    if (cleanAdmin && cleanAdmin !== location.name) parts.push(cleanAdmin);
+    const cleanAdmin = location.admin1
+      .replace(/^استان\s+/, "")
+      .trim();
+
+    if (cleanAdmin && cleanAdmin !== location.name) {
+      parts.push(cleanAdmin);
+    }
   }
-  if (location.country && !parts.includes(location.country)) parts.push(location.country);
+
+  if (location.country && !parts.includes(location.country)) {
+    parts.push(location.country);
+  }
+
   return parts.join("، ");
 }
 
-async function fetchCitySuggestions(query) {
-  if (query.length < 3) {
+async function searchCities(query, count = 10) {
+  const normalizedCity = normalizeCityName(query);
+  const searchNames = [normalizedCity];
+
+  if (cityAliases[normalizedCity]) {
+    searchNames.push(cityAliases[normalizedCity]);
+  }
+
+  for (const searchName of searchNames) {
+    const url =
+      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchName)}&count=${count}&language=fa&format=json`;
+
+    const res = await fetch(url);
+
+    if (!res.ok) {
+      throw new Error("ارتباط با سرویس جست‌وجوی شهر برقرار نشد.");
+    }
+
+    const data = await res.json();
+
+    if (data.results?.length) {
+      return data.results;
+    }
+  }
+
+  return [];
+}
+
+async function fetchCitySuggestions(query, requestId) {
+  if (requestId !== suggestionRequestId || isLoading) return;
+
+  if (normalizeCityName(query).length < 2) {
     hideSuggestions();
     return;
   }
 
   try {
-    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=10&language=fa&format=json`;
-    const res = await fetch(url);
-    const data = await res.json();
+    const results = await searchCities(query);
 
-    if (!data.results || data.results.length === 0) {
-      hideSuggestions();
-      return;
-    }
+    // پاسخ جست‌وجوی قدیمی نباید جای پاسخ جدید نمایش داده شود.
+    if (requestId !== suggestionRequestId || isLoading) return;
 
     const seen = new Set();
-    const filtered = data.results.filter((item) => {
-      const isCity = item.feature_code && item.feature_code.startsWith("PPL");
+
+    const filtered = results.filter((item) => {
+      const isCity = item.feature_code?.startsWith("PPL");
+
+      if (!isCity) return false;
+
       const key = `${item.name}|${item.country}|${item.admin1 || ""}`;
+
       if (seen.has(key)) return false;
+
       seen.add(key);
-      return isCity;
+      return true;
     });
 
     if (filtered.length === 0) {
@@ -197,6 +279,7 @@ async function fetchCitySuggestions(query) {
     filtered.slice(0, 5).forEach((item) => {
       const div = document.createElement("div");
       div.className = "suggestion-item";
+
       const fullName = buildDisplayName(item);
       div.textContent = fullName;
 
@@ -206,6 +289,7 @@ async function fetchCitySuggestions(query) {
           lon: item.longitude,
           name: fullName
         };
+
         cityInput.value = item.name;
         hideSuggestions();
         getWeather();
@@ -216,38 +300,55 @@ async function fetchCitySuggestions(query) {
 
     suggestionsBox.classList.remove("hidden");
   } catch {
-    hideSuggestions();
+    if (requestId === suggestionRequestId) {
+      hideSuggestions();
+    }
   }
 }
 
 function displayForecast(daily) {
   forecastRow.innerHTML = "";
 
+  if (
+    !daily?.time ||
+    !daily?.weather_code ||
+    !daily?.temperature_2m_max ||
+    !daily?.temperature_2m_min
+  ) {
+    forecastCard.classList.add("hidden");
+    return;
+  }
+
   const labels = ["فردا", "پس‌فردا", "سه روز دیگر"];
 
   // شماره صفر مربوط به امروز است؛ از شماره یک شروع می‌کنیم.
-  for (let i = 1; i <= 3; i++) {
+  for (let i = 1; i <= 3 && i < daily.time.length; i++) {
     const item = document.createElement("div");
     item.className = "forecast-item";
 
-    const maxTemp = Math.round(daily.temperature_2m_max[i]);
-    const minTemp = Math.round(daily.temperature_2m_min[i]);
+    const maxTemp = formatTemperature(daily.temperature_2m_max[i]);
+    const minTemp = formatTemperature(daily.temperature_2m_min[i]);
+    const code = daily.weather_code[i];
 
     item.innerHTML = `
       <div class="fc-emoji">
-        ${getWeatherEmoji(daily.weather_code[i])}
+        ${getWeatherEmoji(code)}
+      </div>
+
+      <div class="fc-description">
+        ${getWeatherDescription(code)}
       </div>
 
       <div class="fc-hours">${labels[i - 1]}</div>
 
       <div class="fc-temperatures">
         <div class="fc-temp-min">
-          <span>${minTemp}°</span>
+          <span>${minTemp}</span>
           <small>↓ کمینه</small>
         </div>
 
         <div class="fc-temp-max">
-          <span>${maxTemp}°</span>
+          <span>${maxTemp}</span>
           <small>↑ بیشینه</small>
         </div>
       </div>
@@ -256,9 +357,15 @@ function displayForecast(daily) {
     forecastRow.appendChild(item);
   }
 
-  forecastCard.classList.remove("hidden");
+  forecastCard.classList.toggle(
+    "hidden",
+    forecastRow.children.length === 0
+  );
 }
+
 async function getWeather() {
+  if (isLoading) return;
+
   const city = cityInput.value.trim();
 
   if (!city) {
@@ -266,92 +373,89 @@ async function getWeather() {
     return;
   }
 
+  isLoading = true;
   getWeatherBtn.disabled = true;
+
+  clearTimeout(debounceTimer);
+  suggestionRequestId++;
+
   showMessage("در حال دریافت اطلاعات...", false);
   clearWeather();
   hideSuggestions();
 
   try {
-    let latitude, longitude, displayName;
+    let latitude;
+    let longitude;
+    let displayName;
 
     if (selectedLocation) {
       latitude = selectedLocation.lat;
       longitude = selectedLocation.lon;
       displayName = selectedLocation.name;
     } else {
-      const normalizedCity = city
-  .normalize("NFKC")
-  .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
-  .replace(/ي/g, "ی")
-  .replace(/ك/g, "ک")
-  .replace(/\u200C/g, " ")
-  .replace(/\s+/g, " ")
-  .trim();
+      const results = await searchCities(city);
 
-// نام جایگزین برای شهرهایی که جست‌وجوی فارسی‌شان مشکل دارد
-const cityAliases = {
-  "بوشهر": "Bushehr"
-};
-
-const searchNames = [normalizedCity];
-
-if (cityAliases[normalizedCity]) {
-  searchNames.push(cityAliases[normalizedCity]);
-}
-
-let geoData = { results: [] };
-
-for (const searchName of searchNames) {
-  const geoUrl =
-    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchName)}&count=1&language=fa&format=json`;
-
-  const geoRes = await fetch(geoUrl);
-
-  if (!geoRes.ok) {
-    throw new Error("ارتباط با سرویس جست‌وجوی شهر برقرار نشد.");
-  }
-
-  geoData = await geoRes.json();
-
-  if (geoData.results?.length) {
-    break;
-  }
-}
-
-      if (!geoData.results || geoData.results.length === 0) {
+      if (results.length === 0) {
         throw new Error("شهر پیدا نشد.");
       }
 
-      const location = geoData.results[0];
+      const location =
+        results.find((item) => item.feature_code?.startsWith("PPL")) ||
+        results[0];
+
       latitude = location.latitude;
       longitude = location.longitude;
       displayName = buildDisplayName(location);
     }
 
-    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&timeformat=unixtime&forecast_days=4`;
+    const weatherUrl =
+      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&wind_speed_unit=kmh&timezone=auto&timeformat=unixtime&forecast_days=4`;
+
     const weatherRes = await fetch(weatherUrl);
+
+    if (!weatherRes.ok) {
+      throw new Error("ارتباط با سرویس آب و هوا برقرار نشد.");
+    }
+
     const weatherData = await weatherRes.json();
 
     if (!weatherData.current) {
       throw new Error("اطلاعات آب و هوا دریافت نشد.");
     }
 
-    const temp = Math.round(weatherData.current.temperature_2m);
-    const code = weatherData.current.weather_code;
-    const windKmh = Math.round(weatherData.current.wind_speed_10m);
-    const windMs = (windKmh / 3.6).toFixed(1);
+    const current = weatherData.current;
+    const code = current.weather_code;
 
     cityName.textContent = displayName;
-    temperature.textContent = `${temp}°`;
+
+    // علامت درجه در سمت راست عدد
+    temperature.textContent = formatTemperature(current.temperature_2m);
+
+    // دمای احساسی فقط یک بار نمایش داده می‌شود.
+    if (feelsLike) {
+      feelsLike.textContent =
+        `دمای احساسی: ${formatTemperature(current.apparent_temperature)}`;
+    }
+
     description.textContent = getWeatherDescription(code);
-    windSpeed.innerHTML = `
-  <span>سرعت باد</span>
-  <span class="wind-values">
-    ${windKmh} km/h
-    <small>(${windMs} m/s)</small>
-  </span>
-`;
     weatherIcon.innerHTML = getWeatherEmoji(code);
+
+    const rawWindKmh = current.wind_speed_10m;
+
+    if (rawWindKmh == null || !Number.isFinite(Number(rawWindKmh))) {
+      windSpeed.textContent = "سرعت باد: نامشخص";
+    } else {
+      const windKmh = Math.round(Number(rawWindKmh));
+      const windMs = (Number(rawWindKmh) / 3.6).toFixed(1);
+
+      windSpeed.innerHTML = `
+        <span>سرعت باد</span>
+        <span class="wind-values" dir="ltr">
+          ${windKmh} km/h
+          <small>(${windMs} m/s)</small>
+        </span>
+      `;
+    }
 
     const cityTimeFormatter = new Intl.DateTimeFormat("fa-IR", {
       timeZone: weatherData.timezone,
@@ -369,20 +473,25 @@ for (const searchName of searchNames) {
     }
 
     if (weatherUpdatedAt) {
-      const dataTime = new Date(weatherData.current.time * 1000);
+      if (current.time == null) {
+        weatherUpdatedAt.textContent = "زمان دادهٔ هواشناسی: نامشخص";
+      } else {
+        const dataTime = new Date(current.time * 1000);
 
-      weatherUpdatedAt.textContent =
-        `زمان دادهٔ هواشناسی: ${cityTimeFormatter.format(dataTime)}`;
+        weatherUpdatedAt.textContent =
+          `زمان دادهٔ هواشناسی: ${cityTimeFormatter.format(dataTime)}`;
+      }
     }
 
     if (humidity) {
-      const humidityValue = weatherData.current.relative_humidity_2m;
+      const humidityValue = current.relative_humidity_2m;
 
       humidity.textContent =
         humidityValue == null
           ? "رطوبت: نامشخص"
-          : `رطوبت: ${humidityValue}٪`;
+          : `رطوبت: \u2066${humidityValue}٪\u2069`;
     }
+
     displayForecast(weatherData.daily);
     openModal();
     showMessage("", false);
@@ -390,6 +499,7 @@ for (const searchName of searchNames) {
     showMessage(error.message || "خطا در دریافت اطلاعات.");
     closeModal();
   } finally {
+    isLoading = false;
     getWeatherBtn.disabled = false;
   }
 }
@@ -397,22 +507,48 @@ for (const searchName of searchNames) {
 getWeatherBtn.addEventListener("click", getWeather);
 
 cityInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") getWeather();
+  if (event.key === "Enter") {
+    event.preventDefault();
+    getWeather();
+  }
 });
 
 cityInput.addEventListener("input", () => {
   const query = cityInput.value.trim();
+
   selectedLocation = null;
   clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => fetchCitySuggestions(query), 300);
+  hideSuggestions();
+
+  const requestId = ++suggestionRequestId;
+
+  debounceTimer = setTimeout(() => {
+    fetchCitySuggestions(query, requestId);
+  }, 300);
 });
 
 cityInput.addEventListener("blur", () => {
-  setTimeout(() => hideSuggestions(), 200);
+  setTimeout(() => {
+    // اگر کاربر دوباره روی ورودی کلیک کرده، پیشنهادها بسته نشوند.
+    if (document.activeElement === cityInput) return;
+
+    clearTimeout(debounceTimer);
+    suggestionRequestId++;
+    hideSuggestions();
+  }, 200);
 });
 
 closeModalBtn.addEventListener("click", closeModal);
 
 modal.addEventListener("click", (event) => {
-  if (event.target === modal) closeModal();
+  if (event.target === modal) {
+    closeModal();
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeModal();
+    hideSuggestions();
+  }
 });

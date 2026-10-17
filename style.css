@@ -168,9 +168,6 @@ body {
   content: "دمای فعلی";
 }
 
-.description::before {
-  content: "وضعیت فعلی آسمان";
-}
 
 .forecast-card {
   margin: 16px 23px 0;
@@ -611,4 +608,43 @@ body {
 .fc-temperatures {
   margin-top: 6px;
   gap: 3px;
+}
+/* شرح وضعیت هوا زیر آیکون */
+.current-weather .description {
+  margin: 6px 0 12px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* دمای احساسی زیر دمای اصلی */
+.feels-like {
+  margin: 6px 0 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+/* شرح وضعیت هوا در پیش‌بینی روزهای آینده */
+.fc-description {
+  margin: 5px 0;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+.description {
+  border-top: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 4px;
+}
+#weatherIcon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
 }
