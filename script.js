@@ -11,6 +11,9 @@ const temperature = document.getElementById("temperature");
 const description = document.getElementById("description");
 const windSpeed = document.getElementById("windSpeed");
 const weatherIcon = document.getElementById("weatherIcon");
+const cityLocalTime = document.getElementById("cityLocalTime");
+const weatherUpdatedAt = document.getElementById("weatherUpdatedAt");
+const humidity = document.getElementById("humidity");
 
 const forecastCard = document.getElementById("forecastCard");
 const forecastRow = document.getElementById("forecastRow");
@@ -325,7 +328,7 @@ for (const searchName of searchNames) {
       displayName = buildDisplayName(location);
     }
 
-    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=4`;
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&timeformat=unixtime&forecast_days=4`;
     const weatherRes = await fetch(weatherUrl);
     const weatherData = await weatherRes.json();
 
@@ -350,6 +353,36 @@ for (const searchName of searchNames) {
 `;
     weatherIcon.innerHTML = getWeatherEmoji(code);
 
+    const cityTimeFormatter = new Intl.DateTimeFormat("fa-IR", {
+      timeZone: weatherData.timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23"
+    });
+
+    if (cityLocalTime) {
+      cityLocalTime.textContent =
+        `زمان محلی شهر: ${cityTimeFormatter.format(new Date())}`;
+    }
+
+    if (weatherUpdatedAt) {
+      const dataTime = new Date(weatherData.current.time * 1000);
+
+      weatherUpdatedAt.textContent =
+        `زمان دادهٔ هواشناسی: ${cityTimeFormatter.format(dataTime)}`;
+    }
+
+    if (humidity) {
+      const humidityValue = weatherData.current.relative_humidity_2m;
+
+      humidity.textContent =
+        humidityValue == null
+          ? "رطوبت: نامشخص"
+          : `رطوبت: ${humidityValue}٪`;
+    }
     displayForecast(weatherData.daily);
     openModal();
     showMessage("", false);

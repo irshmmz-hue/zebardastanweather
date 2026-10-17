@@ -276,6 +276,15 @@ body {
   direction: rtl;
 }
 
+#windSpeed .wind-values {
+  direction: ltr;
+  text-align: left;
+}
+
+#windSpeed .wind-values small {
+  display: block;
+  font-size: 0.75em;
+}
 .wind-values {
   direction: ltr;
   text-align: left;
@@ -496,4 +505,110 @@ body {
 
 .feedback-box #sendFeedbackBtn:hover {
   background: #405469;
+}
+/* ساعت محلی شهر */
+#cityLocalTime {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.8;
+  direction: rtl;
+}
+
+/* زمان آخرین اطلاعات هواشناسی */
+#weatherUpdatedAt {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.8;
+  opacity: 0.75;
+  direction: rtl;
+}
+
+/* رطوبت هوا */
+#humidity {
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.8;
+  direction: rtl;
+}
+/* جمع‌وجور کردن پنجرهٔ آب‌وهوا */
+.modal {
+  padding: 10px;
+}
+
+.modal-content {
+  max-height: calc(100dvh - 20px);
+}
+
+#cityName {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+/* کاهش فاصلهٔ آیکون */
+.weather-icon {
+  margin: 0;
+  padding: 8px 0 4px;
+}
+
+#weatherIcon {
+  font-size: 48px;
+  line-height: 1.1;
+}
+
+/* تاریخ و ساعت */
+#cityLocalTime {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+#weatherUpdatedAt {
+  margin: 2px 0 6px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* ردیف‌های دما، وضعیت آسمان و باد */
+.temperature,
+.description,
+.wind {
+  margin: 0;
+  padding: 8px 0;
+  line-height: 1.6;
+}
+
+/* رطوبت */
+#humidity {
+  margin: 0;
+  padding: 6px 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* بخش پیش‌بینی */
+.forecast-card {
+  margin: 8px 23px 0;
+  padding: 12px 0 16px;
+}
+
+.forecast-card h3 {
+  margin: 0 0 10px;
+}
+
+.forecast-item .fc-emoji {
+  font-size: 34px;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.forecast-row img {
+  width: 38px;
+  height: 38px;
+  margin-bottom: 4px;
+}
+
+/* کمینه و بیشینه همچنان زیر هم می‌مانند */
+.fc-temperatures {
+  margin-top: 6px;
+  gap: 3px;
 }
