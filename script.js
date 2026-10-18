@@ -61,7 +61,7 @@ const weatherDescriptions = {
 let currentLang = "en";
 let currentMethod = "3";
 let previewLang = "en";
-let previewMethodValue = "3"; // نام متغیر اصلاح شد
+let previewMethodValue = "3";
 let debounceTimer = null;
 let selectedLocation = null;
 let suggestionRequestId = 0;
@@ -140,18 +140,15 @@ function selectInitialLanguage(lang) {
   appScreen.classList.remove("hidden");
 }
 
-// فقط پیش‌نمایش زبان در تنظیمات
 function previewLanguage(lang) {
   previewLang = lang;
-  applyLanguage(lang); // صفحه را با زبان جدید رندر کن
+  applyLanguage(lang); 
 }
 
-// فقط پیش‌نمایش روش محاسبه
 function previewMethod(method) {
   previewMethodValue = method;
 }
 
-// ذخیره نهایی تنظیمات
 function saveSettings() {
   currentLang = previewLang;
   currentMethod = previewMethodValue;
@@ -161,7 +158,6 @@ function saveSettings() {
   
   settingsModal.classList.add("hidden");
   
-  // اگر مودال آب‌وهوا باز است، اوقات شرعی را با روش جدید دوباره بگیر
   if (!modal.classList.contains("hidden") && lastCoords) {
     fetchPrayerTimes(lastCoords.lat, lastCoords.lon);
   }
@@ -376,6 +372,9 @@ async function getWeather() {
     }
 
     lastCoords = { lat: latitude, lon: longitude };
+    
+    // ✅ ذخیره آخرین شهر جستجو شده در حافظه
+    localStorage.setItem("lastCity", JSON.stringify({ lat: latitude, lon: longitude, name: displayName }));
 
     const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&wind_speed_unit=kmh&timezone=auto&timeformat=unixtime&forecast_days=4`;
     const weatherRes = await fetch(weatherUrl);
@@ -461,7 +460,6 @@ cityInput.addEventListener("blur", () => {
 closeModalBtn.addEventListener("click", closeModal);
 modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
 
-// تنظیمات
 settingsBtn.addEventListener("click", () => {
   previewLang = currentLang;
   previewMethodValue = currentMethod;
@@ -470,7 +468,7 @@ settingsBtn.addEventListener("click", () => {
 });
 
 closeSettingsBtn.addEventListener("click", () => {
-  applyLanguage(currentLang); // بازگشت به زبان قبلی
+  applyLanguage(currentLang);
   settingsModal.classList.add("hidden");
 });
 
@@ -511,6 +509,25 @@ document.addEventListener("DOMContentLoaded", () => {
     applyLanguage(savedLang);
     languageScreen.classList.add("hidden");
     appScreen.classList.remove("hidden");
+
+    // ✅ بررسی آخرین شهر ذخیره شده
+    const lastCityStr = localStorage.getItem("lastCity");
+    if (lastCityStr) {
+      try {
+        const lastCity = JSON.parse(lastCityStr);
+        if (lastCity && lastCity.lat && lastCity.lon) {
+          // پر کردن اینپوت و تنظیم موقعیت
+          cityInput.value = lastCity.name;
+          selectedLocation = { lat: lastCity.lat, lon: lastCity.lon, name: lastCity.name };
+          
+          // دریافت خودکار آب و هوا
+          getWeather();
+        }
+      } catch (e) {
+        console.error("Error loading last city", e);
+      }
+    }
+
   } else {
     languageScreen.classList.remove("hidden");
     appScreen.classList.add("hidden");
