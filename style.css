@@ -1,173 +1,184 @@
-/* ===== تنظیمات پایه ===== */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-  
-  body {
-    font-family: Tahoma, sans-serif;
-    background: linear-gradient(135deg, #74b9ff, #a29bfe);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    direction: rtl;
-    color: #222;
-    padding: 16px;
-  }
-  
-  /* ===== کانتینر اصلی ===== */
-  .app-container {
-    width: 100%;
-    max-width: 460px;
-    background: rgba(255, 255, 255, 0.96);
-    border-radius: 18px;
-    padding: 24px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  }
-  
-  /* ===== عنوان و توضیح ===== */
-  h1 {
-    font-size: 1.6rem;
-    margin-bottom: 8px;
-    text-align: center;
-  }
-  
-  .subtitle {
-    text-align: center;
-    font-size: 0.95rem;
-    color: #555;
-    margin-bottom: 20px;
-    line-height: 1.8;
-  }
-  
-  /* ===== بخش جستجو ===== */
-  .search-wrapper {
-    position: relative;
-  }
-  
-  .search-box {
-    display: flex;
-    gap: 10px;
-  }
-  
-  .search-box input {
-    flex: 1;
-    padding: 12px 14px;
-    border: 1px solid #dfe6e9;
-    border-radius: 12px;
-    font-size: 1rem;
-    outline: none;
-    transition: 0.3s;
-    font-family: Tahoma, sans-serif;
-    background: #fff;
-  }
-  
-  .search-box input:focus {
-    border-color: #6c5ce7;
-    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12);
-  }
-  
-  .search-box button {
-    padding: 12px 18px;
-    border: none;
-    border-radius: 12px;
-    background: #6c5ce7;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: 0.3s;
-    font-family: Tahoma, sans-serif;
-    white-space: nowrap;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    box-shadow: none;
-    outline: none;
-  }
-  
-  .search-box button:hover {
-    background: #5a4bd6;
-  }
-  
-  .search-box button:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
-  
-  /* ===== پیشنهادها ===== */
-  .suggestions {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    left: 0;
-    background: #fff;
-    border: 1px solid #e9ecef;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-    z-index: 20;
-    max-height: 240px;
-    overflow-y: auto;
-  }
-  
-  .suggestion-item {
-    padding: 12px 14px;
-    cursor: pointer;
-    border-bottom: 1px solid #f1f3f5;
-    transition: background 0.2s;
-    font-size: 0.95rem;
-  }
-  
-  .suggestion-item:hover {
-    background: #f8f9ff;
-  }
-  
-  .suggestion-item:last-child {
-    border-bottom: none;
-  }
-  
-  .hidden {
-    display: none;
-  }
-  
-  /* ===== پیام‌ها ===== */
-  .message {
-    min-height: 24px;
-    margin: 14px 0;
-    font-size: 0.95rem;
-    text-align: center;
-    color: #d63031;
-  }
-  
-  /* ===== کارت اطلاعات آب و هوا ===== */
-  .weather-card {
-    background: #f8f9fa;
-    border-radius: 16px;
-    padding: 18px;
-    border: 1px solid #e9ecef;
-    line-height: 2;
-  }
-  
-  .weather-card h2 {
-    margin-bottom: 10px;
-    font-size: 1.3rem;
-    color: #2d3436;
-    text-align: center;
-  }
-  
-  /* ===== ریسپانسیو ===== */
-  @media (max-width: 480px) {
-    .app-container {
-      padding: 18px;
-    }
-  
-    .search-box {
-      flex-direction: column;
-    }
-  
-    .search-box button {
-      width: 100%;
-    }
-  }
+* { box-sizing: border-box; }
+
+body {
+  margin: 0; min-height: 100vh; font-family: Tahoma, Arial, sans-serif;
+  background: #eef2f6; color: #666;
+  transition: direction 0.3s;
+}
+
+.app { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 14px; }
+
+/* ===== صفحه انتخاب زبان ===== */
+.language-screen {
+  position: fixed; inset: 0; background: #eef2f6; z-index: 2000;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.lang-container {
+  background: white; padding: 40px 30px; border-radius: 16px; text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 400px; width: 100%;
+}
+.lang-container h1 { font-size: 2rem; margin: 0 0 10px; color: #35465b; }
+.lang-container p { color: #666; margin: 0 0 30px; font-size: 1rem; }
+.lang-options { display: flex; flex-direction: column; gap: 12px; }
+.lang-options button {
+  padding: 15px; border: 2px solid #1769aa; background: white; color: #1769aa;
+  font-size: 1.1rem; border-radius: 10px; cursor: pointer; font-weight: bold;
+  transition: 0.2s; font-family: inherit;
+}
+.lang-options button:hover { background: #1769aa; color: white; }
+
+/* ===== فرم‌ها و دکمه‌ها ===== */
+.search-box {
+  width: 100%; max-width: 380px; padding: 28px; background: white;
+  border-radius: 12px; box-shadow: 0 5px 25px #00000012; text-align: center;
+}
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.header h1 { margin: 0; font-size: 21px; color: #35465b; }
+.icon-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0; }
+
+#cityInput {
+  width: 100%; padding: 13px; border: 1px solid #d5dce3; border-radius: 6px;
+  font: inherit; outline: none;
+}
+#cityInput:focus { border-color: #3783ce; }
+#getWeatherBtn {
+  width: 100%; margin-top: 12px; padding: 12px; border: none; border-radius: 6px;
+  background: #1769aa; color: white; font: inherit; cursor: pointer;
+}
+.message { font-size: 13px; line-height: 1.8; }
+
+.suggestions {
+  margin-top: 8px; max-height: 220px; overflow-y: auto; border: 1px solid #ddd;
+  border-radius: 6px; background: white; text-align: right;
+}
+.suggestions > * { padding: 10px; cursor: pointer; }
+.suggestions > *:hover { background: #edf5fc; }
+
+/* ===== مودال‌ها ===== */
+.modal {
+  position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center;
+  justify-content: center; padding: 10px; background: rgba(0,0,0,0.52);
+}
+.modal-content {
+  position: relative; width: 300px; max-width: 100%; max-height: calc(100dvh - 20px);
+  overflow-y: auto; background: white; border: 1px solid #777; border-radius: 4px;
+}
+.close-btn {
+  position: absolute; top: 11px; left: 22px; z-index: 2; padding: 0 8px;
+  border: none; background: transparent; color: #888; font-size: 25px; cursor: pointer;
+}
+
+/* استایل‌های اختصاصی تنظیمات */
+.settings-modal { padding: 20px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e5e9; padding-bottom: 10px; margin-bottom: 15px; }
+.modal-header h2 { margin: 0; font-size: 1.2rem; color: #35465b; }
+.modal-header .close-btn { position: static; }
+.settings-body { display: flex; flex-direction: column; gap: 10px; }
+.settings-label { margin: 0; font-size: 14px; color: #35465b; font-weight: bold; }
+.settings-lang-options { display: flex; flex-direction: column; gap: 8px; }
+.settings-lang-options button {
+  padding: 10px; border: 1px solid #d5dce3; background: #f8f9fa; border-radius: 6px;
+  cursor: pointer; font-family: inherit; font-size: 14px;
+}
+.settings-lang-options button:hover { background: #e9ecef; }
+
+.settings-select {
+  width: 100%; padding: 10px; border: 1px solid #d5dce3; border-radius: 6px;
+  font-family: inherit; font-size: 14px; background: white; outline: none;
+}
+.settings-select:focus { border-color: #3783ce; }
+
+/* دکمه ذخیره تنظیمات */
+.save-settings-btn {
+  width: 100%; margin-top: 20px; padding: 12px; background: #1769aa;
+  color: white; border: none; border-radius: 6px; font-family: inherit;
+  font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s;
+}
+.save-settings-btn:hover { background: #125384; }
+
+/* ===== آب و هوا ===== */
+.current-weather { display: flex; flex-direction: column; padding: 0 23px; }
+#cityName {
+  order: -1; margin: 0 -23px; padding: 12px 17px; padding-left: 60px;
+  border-bottom: 1px solid #e2e5e9; font-size: 14px; font-weight: normal; text-align: right;
+}
+.weather-icon { padding: 8px 0 4px; font-size: 48px; text-align: right; display: flex; justify-content: center; width: 100%; margin: 0 auto; }
+.temperature, .description, .wind {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 8px 0; border-top: 1px solid #dce1e7; font-size: 12px; line-height: 1.6; margin: 0;
+}
+.temperature::before { content: attr(data-label); }
+#windSpeed { display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%; direction: rtl; }
+#windSpeed .wind-values { direction: ltr; text-align: left; white-space: nowrap; font-size: 12px; }
+#windSpeed .wind-values small { display: block; font-size: 10px; color: #777; }
+
+.description { border-top: none; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 4px; margin: 6px 0 12px; font-size: 16px; }
+.feels-like { margin: 6px 0 14px; font-size: 14px; line-height: 1.6; opacity: 0.85; text-align: center; }
+#cityLocalTime { margin: 4px 0 0; font-size: 12px; line-height: 1.6; direction: rtl; }
+#weatherUpdatedAt { margin: 2px 0 6px; font-size: 11px; line-height: 1.6; opacity: 0.75; direction: rtl; }
+#humidity { margin: 0; padding: 6px 0; font-size: 12px; line-height: 1.6; direction: rtl; }
+
+/* ===== اوقات شرعی ===== */
+.prayer-times-card {
+  margin: 8px 23px 0; padding: 12px 0 16px; border-top: 1px solid #dce1e7;
+}
+.prayer-times-card h3 {
+  margin: 0 0 10px; font-size: 12px; font-weight: normal; text-align: center; color: #888;
+}
+.prayer-times-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+  gap: 8px; text-align: center;
+}
+.prayer-item {
+  background: #f8f9fa; padding: 8px 4px; border-radius: 6px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.prayer-name { font-size: 11px; color: #666; }
+.prayer-time { font-size: 13px; font-weight: bold; color: #1769aa; }
+
+/* پیش‌بینی */
+.forecast-card { margin: 8px 23px 0; padding: 12px 0 16px; border-top: 1px solid #dce1e7; }
+.forecast-card h3 { margin: 0 0 10px; font-size: 12px; font-weight: normal; text-align: center; color: #888; }
+.forecast-row { display: flex; justify-content: space-between; gap: 6px; }
+.forecast-row > * { flex: 1; min-width: 0; text-align: center; font-size: 11px; line-height: 1.9; }
+.forecast-item .fc-emoji { display: block; font-size: 34px; line-height: 1.2; margin-bottom: 4px; color: #333; }
+.fc-description { margin: 5px 0; font-size: 12px; line-height: 1.5; text-align: center; }
+.fc-temperatures { display: flex; flex-direction: column; align-items: center; gap: 3px; margin-top: 6px; }
+.fc-temperatures .fc-temp-min, .fc-temperatures .fc-temp-max { flex-direction: row; justify-content: center; gap: 4px; font-size: 12px; line-height: 1.5; }
+.fc-temperatures small { font-size: 10px; white-space: nowrap; }
+.fc-temperatures span { direction: ltr; unicode-bidi: isolate; }
+.fc-temperatures .fc-temp-min { color: #087bd3; }
+.fc-temperatures .fc-temp-max { color: #e53935; }
+
+/* ===== بازخورد ===== */
+.feedback-box {
+  width: 100%; max-width: 380px; margin: 0; padding: 10px 14px;
+  background: transparent; color: #536274; border: 1px solid #cbd5e1; border-radius: 8px;
+  direction: rtl;
+}
+.feedback-box summary { cursor: pointer; font-size: 12px; font-weight: normal; line-height: 1.8; }
+.feedback-box[open] { background: #ffffff; }
+.feedback-box .feedback-description { margin: 12px 0; color: #536274; font-size: 12px; }
+.feedback-box .feedback-form { display: flex; flex-direction: column; gap: 10px; margin: 0; }
+.feedback-box .feedback-field { display: flex; flex-direction: column; gap: 7px; }
+.feedback-box .feedback-field label { color: #35465b; font-size: 12px; }
+.feedback-box .feedback-field input, .feedback-box .feedback-field textarea {
+  width: 100%; padding: 9px 10px; color: #172b46; background: #ffffff;
+  border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; font-size: 13px; line-height: 1.7;
+}
+.feedback-box #sendFeedbackBtn {
+  padding: 10px; color: #ffffff; background: #52677d; border: 0; border-radius: 6px;
+  font-family: inherit; font-size: 12px; font-weight: normal; cursor: pointer;
+}
+.feedback-box #sendFeedbackBtn:hover { background: #405469; }
+
+/* دکمه دعوت از دوستان */
+.invite-btn {
+  width: 100%; max-width: 380px; margin: 0; padding: 12px;
+  background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7;
+  border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px;
+  font-weight: bold; transition: 0.2s;
+}
+.invite-btn:hover { background: #c8e6c9; }
+
+.hidden { display: none !important; }
