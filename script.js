@@ -16,7 +16,7 @@ const translations = {
     prayerTimesTitle: "Prayer Times",
     prayers: { Fajr: "Fajr", Dhuhr: "Dhuhr", Asr: "Asr", Maghrib: "Maghrib", Isha: "Isha" },
     saveSettings: "Save & Close",
-    inviteBtn: "Invite Friends" // ✅ اضافه شد
+    inviteBtn: "Invite Friends"
   },
   fa: {
     welcomeTitle: "خوش آمدید", welcomeSubtitle: "لطفاً زبان خود را انتخاب کنید",
@@ -32,7 +32,7 @@ const translations = {
     prayerTimesTitle: "اوقات شرعی",
     prayers: { Fajr: "اذان صبح", Dhuhr: "اذان ظهر", Asr: "عصر", Maghrib: "اذان مغرب", Isha: "عشا" },
     saveSettings: "ذخیره و بستن",
-    inviteBtn: "دعوت از دوستان" // ✅ اضافه شد
+    inviteBtn: "دعوت از دوستان"
   },
   ar: {
     welcomeTitle: "أهلاً بك", welcomeSubtitle: "الرجاء اختيار لغتك",
@@ -48,7 +48,7 @@ const translations = {
     prayerTimesTitle: "أوقات الصلاة",
     prayers: { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء" },
     saveSettings: "حفظ وإغلاق",
-    inviteBtn: "دعوة الأصدقاء" // ✅ اضافه شد
+    inviteBtn: "دعوة الأصدقاء"
   }
 };
 
@@ -135,7 +135,6 @@ function applyLanguage(lang) {
   document.getElementById("prayerTimesTitle").textContent = t.prayerTimesTitle;
   saveSettingsBtn.textContent = t.saveSettings;
   
-  // ✅ ترجمه دکمه دعوت
   const inviteBtn = document.getElementById("inviteBtn");
   if (inviteBtn) inviteBtn.textContent = t.inviteBtn;
 }
@@ -269,7 +268,8 @@ async function fetchCitySuggestions(query, requestId) {
     });
     if (filtered.length === 0) { hideSuggestions(); return; }
     
-    suggestionsBox.innerHTML = "";
+    // ✅ ساخت لیست جدید در حافظه موقت (بدون پاک کردن لیست قبلی روی صفحه)
+    const fragment = document.createDocumentFragment();
     filtered.slice(0, 5).forEach((item) => {
       const div = document.createElement("div");
       div.className = "suggestion-item";
@@ -280,8 +280,12 @@ async function fetchCitySuggestions(query, requestId) {
         hideSuggestions();
         getWeather();
       });
-      suggestionsBox.appendChild(div);
+      fragment.appendChild(div);
     });
+
+    // ✅ حالا لیست قبلی را یکجا با لیست جدید جایگزین کن
+    suggestionsBox.innerHTML = "";
+    suggestionsBox.appendChild(fragment);
     suggestionsBox.classList.remove("hidden");
   } catch {
     if (requestId === suggestionRequestId) hideSuggestions();
@@ -466,9 +470,13 @@ getWeatherBtn.addEventListener("click", getWeather);
 cityInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); getWeather(); } });
 
 cityInput.addEventListener("input", () => {
-  selectedLocation = null; clearTimeout(debounceTimer); hideSuggestions();
+  selectedLocation = null; 
+  clearTimeout(debounceTimer); 
+  hideSuggestions();
+  
   const requestId = ++suggestionRequestId;
-  debounceTimer = setTimeout(() => fetchCitySuggestions(cityInput.value.trim(), requestId), 300);
+  // ✅ زمان را از 300 به 400 تغییر دادیم تا پرش کمتر شود
+  debounceTimer = setTimeout(() => fetchCitySuggestions(cityInput.value.trim(), requestId), 400);
 });
 
 cityInput.addEventListener("blur", () => {
