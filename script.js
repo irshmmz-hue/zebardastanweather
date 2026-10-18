@@ -15,7 +15,8 @@ const translations = {
     errorNotFound: "City not found.", hours: "h",
     prayerTimesTitle: "Prayer Times",
     prayers: { Fajr: "Fajr", Dhuhr: "Dhuhr", Asr: "Asr", Maghrib: "Maghrib", Isha: "Isha" },
-    saveSettings: "Save & Close"
+    saveSettings: "Save & Close",
+    inviteBtn: "Invite Friends" // ✅ اضافه شد
   },
   fa: {
     welcomeTitle: "خوش آمدید", welcomeSubtitle: "لطفاً زبان خود را انتخاب کنید",
@@ -30,7 +31,8 @@ const translations = {
     errorEmpty: "لطفاً نام یک شهر را وارد کنید.", errorNotFound: "شهر پیدا نشد.", hours: "ساعت",
     prayerTimesTitle: "اوقات شرعی",
     prayers: { Fajr: "اذان صبح", Dhuhr: "اذان ظهر", Asr: "عصر", Maghrib: "اذان مغرب", Isha: "عشا" },
-    saveSettings: "ذخیره و بستن"
+    saveSettings: "ذخیره و بستن",
+    inviteBtn: "دعوت از دوستان" // ✅ اضافه شد
   },
   ar: {
     welcomeTitle: "أهلاً بك", welcomeSubtitle: "الرجاء اختيار لغتك",
@@ -45,7 +47,8 @@ const translations = {
     errorEmpty: "الرجاء إدخال اسم المدينة.", errorNotFound: "المدينة غير موجودة.", hours: "ساعة",
     prayerTimesTitle: "أوقات الصلاة",
     prayers: { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء" },
-    saveSettings: "حفظ وإغلاق"
+    saveSettings: "حفظ وإغلاق",
+    inviteBtn: "دعوة الأصدقاء" // ✅ اضافه شد
   }
 };
 
@@ -131,6 +134,10 @@ function applyLanguage(lang) {
   document.getElementById("forecastTitle").textContent = t.forecastTitle;
   document.getElementById("prayerTimesTitle").textContent = t.prayerTimesTitle;
   saveSettingsBtn.textContent = t.saveSettings;
+  
+  // ✅ ترجمه دکمه دعوت
+  const inviteBtn = document.getElementById("inviteBtn");
+  if (inviteBtn) inviteBtn.textContent = t.inviteBtn;
 }
 
 function selectInitialLanguage(lang) {
@@ -142,10 +149,9 @@ function selectInitialLanguage(lang) {
 
 function previewLanguage(lang) {
   previewLang = lang;
-  // فقط برای پیش‌نمایش، زبان را رندر می‌کنیم اما در حافظه ذخیره نمی‌کنیم
   const tempLang = currentLang;
   applyLanguage(lang);
-  currentLang = tempLang; // برگرداندن زبان اصلی
+  currentLang = tempLang; 
 }
 
 function previewMethod(method) {
@@ -159,7 +165,7 @@ function saveSettings() {
   localStorage.setItem("weatherLang", currentLang);
   localStorage.setItem("prayerMethod", currentMethod);
   
-  applyLanguage(currentLang); // اعمال نهایی زبان
+  applyLanguage(currentLang); 
   settingsModal.classList.add("hidden");
   
   if (!modal.classList.contains("hidden") && lastCoords) {
@@ -377,7 +383,6 @@ async function getWeather() {
 
     lastCoords = { lat: latitude, lon: longitude };
     
-    // ذخیره آخرین شهر
     localStorage.setItem("lastCity", JSON.stringify({ lat: latitude, lon: longitude, name: displayName }));
 
     const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&wind_speed_unit=kmh&timezone=auto&timeformat=unixtime&forecast_days=4`;
@@ -440,6 +445,18 @@ async function getWeather() {
   } finally {
     isLoading = false; getWeatherBtn.disabled = false;
   }
+}
+
+// ============================================
+// دکمه دعوت از دوستان
+// ============================================
+const inviteBtn = document.getElementById("inviteBtn");
+if (inviteBtn) {
+  inviteBtn.addEventListener("click", () => {
+    const botLink = "https://t.me/zebardastanweatherbot";
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botLink)}`;
+    window.open(shareUrl, "_blank");
+  });
 }
 
 // ============================================
@@ -514,7 +531,6 @@ document.addEventListener("DOMContentLoaded", () => {
     languageScreen.classList.add("hidden");
     appScreen.classList.remove("hidden");
 
-    // بررسی آخرین شهر ذخیره شده
     const lastCityStr = localStorage.getItem("lastCity");
     if (lastCityStr) {
       try {
