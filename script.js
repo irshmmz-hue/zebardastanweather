@@ -142,7 +142,10 @@ function selectInitialLanguage(lang) {
 
 function previewLanguage(lang) {
   previewLang = lang;
-  applyLanguage(lang); 
+  // فقط برای پیش‌نمایش، زبان را رندر می‌کنیم اما در حافظه ذخیره نمی‌کنیم
+  const tempLang = currentLang;
+  applyLanguage(lang);
+  currentLang = tempLang; // برگرداندن زبان اصلی
 }
 
 function previewMethod(method) {
@@ -156,6 +159,7 @@ function saveSettings() {
   localStorage.setItem("weatherLang", currentLang);
   localStorage.setItem("prayerMethod", currentMethod);
   
+  applyLanguage(currentLang); // اعمال نهایی زبان
   settingsModal.classList.add("hidden");
   
   if (!modal.classList.contains("hidden") && lastCoords) {
@@ -373,7 +377,7 @@ async function getWeather() {
 
     lastCoords = { lat: latitude, lon: longitude };
     
-    // ✅ ذخیره آخرین شهر جستجو شده در حافظه
+    // ذخیره آخرین شهر
     localStorage.setItem("lastCity", JSON.stringify({ lat: latitude, lon: longitude, name: displayName }));
 
     const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&wind_speed_unit=kmh&timezone=auto&timeformat=unixtime&forecast_days=4`;
@@ -510,17 +514,14 @@ document.addEventListener("DOMContentLoaded", () => {
     languageScreen.classList.add("hidden");
     appScreen.classList.remove("hidden");
 
-    // ✅ بررسی آخرین شهر ذخیره شده
+    // بررسی آخرین شهر ذخیره شده
     const lastCityStr = localStorage.getItem("lastCity");
     if (lastCityStr) {
       try {
         const lastCity = JSON.parse(lastCityStr);
         if (lastCity && lastCity.lat && lastCity.lon) {
-          // پر کردن اینپوت و تنظیم موقعیت
           cityInput.value = lastCity.name;
           selectedLocation = { lat: lastCity.lat, lon: lastCity.lon, name: lastCity.name };
-          
-          // دریافت خودکار آب و هوا
           getWeather();
         }
       } catch (e) {
