@@ -1,49 +1,127 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>اپلیکیشن آب و هوا</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>تست جدید هواشناس</title>
+  <link rel="stylesheet" href="style.css?v=6" />
 </head>
 <body>
-  <div class="app-container">
-    <h1>اپلیکیشن آب و هوا</h1>
-    <p class="subtitle">نام یک شهر را وارد کنید تا وضعیت آب‌وهوای آن نمایش داده شود.</p>
 
-    <div class="search-wrapper">
-      <div class="search-box">
-        <input
-          type="text"
-          id="cityInput"
-          placeholder="مثلاً: تهران"
-          autocomplete="off"
-        />
-        <button id="getWeatherBtn">جستجو</button>
+  <!-- ===== صفحه انتخاب زبان ===== -->
+  <div id="languageScreen" class="language-screen">
+    <div class="lang-container">
+      <h1 id="welcomeTitle">Welcome</h1>
+      <p id="welcomeSubtitle">Please select your language</p>
+      <div class="lang-options">
+        <button onclick="selectInitialLanguage('en')">English</button>
+        <button onclick="selectInitialLanguage('fa')">فارسی</button>
+        <button onclick="selectInitialLanguage('ar')">العربية</button>
       </div>
-      <div id="suggestions" class="suggestions hidden"></div>
-    </div>
-
-    <div id="message" class="message"></div>
-
-    <div id="weatherCard" class="weather-card hidden">
-      <h2 id="cityName"></h2>
-      <p><strong>دما:</strong> <span id="temperature"></span></p>
-      <p><strong>وضعیت هوا:</strong> <span id="description"></span></p>
-      <p><strong>سرعت باد:</strong> <span id="windSpeed"></span></p>
-    </div>
-
-    <!-- پیش‌بینی سه‌روزه -->
-    <div id="forecastCard" class="forecast-card hidden">
-      <h3>پیش‌بینی روزهای آینده</h3>
-      <div class="forecast-row" id="forecastRow"></div>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- ===== صفحه اصلی ===== -->
+  <div id="appScreen" class="app hidden">
+    <div class="search-box">
+      <div class="header">
+        <h1 id="appTitle">تست جدید هواشناس</h1>
+        <button id="settingsBtn" class="icon-btn">⚙️</button>
+      </div>
 
-  <!-- GoatCounter Analytics -->
-  <script data-goatcounter="https://zebardastanweather.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
+      <input id="cityInput" type="text" placeholder="Enter city name" autocomplete="off" />
+      <button id="getWeatherBtn">Get Weather</button>
+
+      <div id="suggestions" class="suggestions hidden"></div>
+      <p id="message" class="message"></p>
+    </div>
+
+    <!-- بخش بازخورد کاربران -->
+    <details class="feedback-box">
+      <summary id="feedbackSummary">Feedback / Report Issue</summary>
+      <p class="feedback-description" id="feedbackDesc">
+        If a city is not found or you see a problem, let us know.
+      </p>
+      <form id="feedbackForm" class="feedback-form" action="https://formspree.io/f/xqpewjez" method="POST">
+        <div class="feedback-field">
+          <label id="labelName" for="feedbackName">Name (Optional)</label>
+          <input id="feedbackName" name="name" type="text" autocomplete="name" maxlength="100" placeholder="Your name" />
+        </div>
+        <div class="feedback-field">
+          <label id="labelEmail" for="feedbackEmail">Email (Optional)</label>
+          <input id="feedbackEmail" name="email" type="email" autocomplete="email" dir="ltr" placeholder="name@example.com" />
+        </div>
+        <div class="feedback-field">
+          <label id="labelMessage" for="feedbackMessage">Message (Required)</label>
+          <textarea id="feedbackMessage" name="message" rows="4" maxlength="5000" required></textarea>
+        </div>
+        <button id="sendFeedbackBtn" type="submit">Send</button>
+      </form>
+    </details>
+        <!-- دکمه دعوت از دوستان -->
+        <button id="inviteBtn" class="invite-btn">Invite Friends</button>
+  </div>
+
+  <!-- ===== مودال آب و هوا ===== -->
+  <div id="weatherModal" class="modal hidden">
+    <div class="modal-content">
+      <button id="closeModalBtn" class="close-btn">×</button>
+      <div class="current-weather">
+        <div id="weatherIcon" class="weather-icon">☀️</div>
+        <div id="description" class="description"></div>
+        <h2 id="cityName"></h2>
+        <div id="cityLocalTime" class="city-local-time"></div>
+        <div id="weatherUpdatedAt" class="weather-updated-at"></div>
+        <div id="temperature" class="temperature"></div>
+        <div id="feelsLike" class="feels-like"></div>
+        <div id="humidity" class="humidity"></div>
+        <div id="windSpeed" class="wind"></div>
+      </div>
+
+      <div id="prayerTimesCard" class="prayer-times-card hidden">
+        <h3 id="prayerTimesTitle">Prayer Times</h3>
+        <div id="prayerTimesRow" class="prayer-times-row"></div>
+      </div>
+
+      <div id="forecastCard" class="forecast-card hidden">
+        <h3 id="forecastTitle">3-Day Forecast</h3>
+        <div id="forecastRow" class="forecast-row"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== مودال تنظیمات ===== -->
+  <div id="settingsModal" class="modal hidden">
+    <div class="modal-content settings-modal">
+      <div class="modal-header">
+        <h2 id="settingsTitle">Settings</h2>
+        <button id="closeSettingsBtn" class="close-btn">×</button>
+      </div>
+      <div class="settings-body">
+        <p id="labelLang" class="settings-label">Language:</p>
+        <div class="settings-lang-options">
+          <button onclick="previewLanguage('en')">English</button>
+          <button onclick="previewLanguage('fa')">فارسی</button>
+          <button onclick="previewLanguage('ar')">العربية</button>
+        </div>
+
+        <p id="labelMethod" class="settings-label" style="margin-top: 15px;">Prayer Calculation Method:</p>
+        <select id="methodSelect" class="settings-select" onchange="previewMethod(this.value)">
+          <option value="3">Muslim World League</option>
+          <option value="2">ISNA (North America)</option>
+          <option value="4">Umm Al-Qura (Makkah)</option>
+          <option value="0">Shia Ithna-Ashari (Jafari)</option>
+          <option value="7">Institute of Geophysics, University of Tehran</option>
+          <option value="1">University of Islamic Sciences, Karachi</option>
+          <option value="5">Egyptian General Authority</option>
+        </select>
+
+        <!-- دکمه ذخیره و بستن -->
+        <button id="saveSettingsBtn" class="save-settings-btn">ذخیره و بستن</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js?v=6"></script>
 </body>
 </html>
