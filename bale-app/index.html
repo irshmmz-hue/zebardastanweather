@@ -4,14 +4,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>هواشناس (بله)</title>
-<link rel="stylesheet" href="style.css?v=2" />
   
-  <!-- ✅ اسکریپت مخصوص بله -->
   <script src="https://tapi.bale.ai/miniapp.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; font-family: Tahoma, Arial, sans-serif; background: #eef2f6; color: #666; }
+    .app { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 14px; }
+    .search-box { width: 100%; max-width: 380px; padding: 28px; background: white; border-radius: 12px; box-shadow: 0 5px 25px #00000012; text-align: center; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .header h1 { margin: 0; font-size: 21px; color: #35465b; }
+    .icon-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0; }
+    #cityInput { width: 100%; padding: 13px; border: 1px solid #d5dce3; border-radius: 6px; font: inherit; outline: none; }
+    #cityInput:focus { border-color: #3783ce; }
+    #getWeatherBtn { width: 100%; margin-top: 12px; padding: 12px; border: none; border-radius: 6px; background: #1769aa; color: white; font: inherit; cursor: pointer; }
+    .message { font-size: 13px; line-height: 1.8; }
+    .suggestions { margin-top: 8px; max-height: 220px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; background: white; text-align: right; }
+    .suggestions > * { padding: 10px; cursor: pointer; }
+    .suggestions > *:hover { background: #edf5fc; }
+    .hidden { display: none !important; }
+  </style>
 </head>
 <body>
-
-  <!-- صفحه انتخاب زبان حذف شد. مستقیم به برنامه می‌رویم -->
 
   <div id="appScreen" class="app">
     <div class="search-box">
@@ -24,85 +38,14 @@
       <div id="suggestions" class="suggestions hidden"></div>
       <p id="message" class="message"></p>
     </div>
-
-    <details class="feedback-box">
-      <summary id="feedbackSummary">ثبت نظر یا گزارش مشکل</summary>
-      <p class="feedback-description" id="feedbackDesc">
-        اگر نام شهری پیدا نشد یا مشکلی مشاهده کردید، اینجا بنویسید.
-      </p>
-      <form id="feedbackForm" class="feedback-form" action="https://formspree.io/f/xqpewjez" method="POST">
-        <div class="feedback-field">
-          <label id="labelName" for="feedbackName">نام شما (اختیاری)</label>
-          <input id="feedbackName" name="name" type="text" autocomplete="name" maxlength="100" placeholder="نام شما" />
-        </div>
-        <div class="feedback-field">
-          <label id="labelEmail" for="feedbackEmail">ایمیل برای پاسخ (اختیاری)</label>
-          <input id="feedbackEmail" name="email" type="email" autocomplete="email" dir="ltr" placeholder="name@example.com" />
-        </div>
-        <div class="feedback-field">
-          <label id="labelMessage" for="feedbackMessage">متن پیام (الزامی)</label>
-          <textarea id="feedbackMessage" name="message" rows="4" maxlength="5000" required></textarea>
-        </div>
-        <button id="sendFeedbackBtn" type="submit">ارسال بازخورد</button>
-      </form>
-    </details>
-
-    <button id="inviteBtn" class="invite-btn">دعوت از دوستان</button>
   </div>
 
-  <div id="weatherModal" class="modal hidden">
-    <div class="modal-content">
-      <button id="closeModalBtn" class="close-btn">×</button>
-      <div class="current-weather">
-        <div id="weatherIcon" class="weather-icon">☀️</div>
-        <div id="description" class="description"></div>
-        <h2 id="cityName"></h2>
-        <div id="cityLocalTime" class="city-local-time"></div>
-        <div id="weatherUpdatedAt" class="weather-updated-at"></div>
-        <div id="temperature" class="temperature"></div>
-        <div id="feelsLike" class="feels-like"></div>
-        <div id="humidity" class="humidity"></div>
-        <div id="windSpeed" class="wind"></div>
-      </div>
-
-      <div id="prayerTimesCard" class="prayer-times-card hidden">
-        <h3 id="prayerTimesTitle">اوقات شرعی</h3>
-        <div id="prayerTimesRow" class="prayer-times-row"></div>
-      </div>
-
-      <div id="forecastCard" class="forecast-card hidden">
-        <h3 id="forecastTitle">پیش‌بینی ۳ روز آینده</h3>
-        <div id="forecastRow" class="forecast-row"></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="settingsModal" class="modal hidden">
-    <div class="modal-content settings-modal">
-      <div class="modal-header">
-        <h2 id="settingsTitle">تنظیمات</h2>
-        <button id="closeSettingsBtn" class="close-btn">×</button>
-      </div>
-      <div class="settings-body">
-        <p id="labelLang" class="settings-label">زبان:</p>
-        <div class="settings-lang-options">
-          <button onclick="previewLanguage('fa')">فارسی</button>
-          <button onclick="previewLanguage('ar')">العربية</button>
-          <button onclick="previewLanguage('en')">English</button>
-        </div>
-
-        <p id="labelMethod" class="settings-label" style="margin-top: 15px;">روش محاسبه اوقات شرعی:</p>
-        <select id="methodSelect" class="settings-select" onchange="previewMethod(this.value)">
-          <option value="0">شیعه (جعفری)</option>
-          <option value="3">اهل سنت (رابطة العالم الإسلامی)</option>
-          <option value="4">اهل سنت (ام‌القری - مکه)</option>
-        </select>
-
-        <button id="saveSettingsBtn" class="save-settings-btn">ذخیره و بستن</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
+  <!-- این بخش موقتا حذف شد تا فقط ظاهر اصلی را ببینیم -->
+  <script>
+    // یک اسکریپت کوچک برای جلوگیری از خطا
+    document.getElementById("getWeatherBtn").addEventListener("click", () => {
+      alert("دکمه کار می‌کند! مرحله بعدی اتصال به API است.");
+    });
+  </script>
 </body>
 </html>
