@@ -188,7 +188,30 @@
   color: #2b8aef;
   background: rgba(43, 138, 239, 0.14);
 }
+/* استایل‌های مربوط به احتمال بارش */
+.fc-precip {
+  display: inline-block !important;
+  margin-top: 6px;
+  font-size: 0.85em;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: bold;
+}
 
+.fc-precip.fc-precip-low {
+  color: #9aa5b1 !important;
+  background: rgba(154, 165, 177, 0.15) !important;
+}
+
+.fc-precip.fc-precip-mid {
+  color: #2b8aef !important;
+  background: rgba(43, 138, 239, 0.14) !important;
+}
+
+.fc-precip.fc-precip-high {
+  color: #ffffff !important;
+  background: #2b8aef !important;
+}
 .fc-precip.fc-precip-high {
   color: #ffffff;
   background: #2b8aef;
