@@ -171,3 +171,26 @@
       width: 100%;
     }
   }
+.fc-precip {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.85em;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.fc-precip.fc-precip-low {
+  color: #9aa5b1;
+  background: rgba(154, 165, 177, 0.15);
+}
+
+.fc-precip.fc-precip-mid {
+  color: #2b8aef;
+  background: rgba(43, 138, 239, 0.14);
+}
+
+.fc-precip.fc-precip-high {
+  color: #ffffff;
+  background: #2b8aef;
+  font-weight: 600;
+}
