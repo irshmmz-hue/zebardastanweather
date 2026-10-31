@@ -324,35 +324,51 @@ const translations = {
     }
   }
   
-  function displayForecast(daily) {
-    forecastRow.innerHTML = "";
-    if (!daily?.time || !daily?.weather_code || !daily?.temperature_2m_max || !daily?.temperature_2m_min) {
-      forecastCard.classList.add("hidden"); return;
-    }
-    const t = translations[currentLang];
-    const labels = t.labels;
-  
-    for (let i = 1; i <= 3 && i < daily.time.length; i++) {
-      const item = document.createElement("div");
-      item.className = "forecast-item";
-      const maxTemp = formatTemperature(daily.temperature_2m_max[i]);
-      const minTemp = formatTemperature(daily.temperature_2m_min[i]);
-      const code = daily.weather_code[i];
-  
-      item.innerHTML = `
-        <div class="fc-emoji">${getWeatherEmoji(code)}</div>
-        <div class="fc-description">${getWeatherDescription(code)}</div>
-        <div class="fc-hours">${labels[i - 1]}</div>
-        <div class="fc-temperatures">
-          <div class="fc-temp-min"><span>${minTemp}</span><small>↓ ${currentLang === 'en' ? 'Min' : (currentLang === 'fa' ? 'کمینه' : 'الصغرى')}</small></div>
-          <div class="fc-temp-max"><span>${maxTemp}</span><small>↑ ${currentLang === 'en' ? 'Max' : (currentLang === 'fa' ? 'بیشینه' : 'العظمى')}</small></div>
-        </div>
-      `;
-      forecastRow.appendChild(item);
-    }
-    forecastCard.classList.toggle("hidden", forecastRow.children.length === 0);
+function displayForecast(daily) {
+  forecastRow.innerHTML = "";
+  if (!daily?.time || !daily?.weather_code || !daily?.temperature_2m_max || !daily?.temperature_2m_min) {
+    forecastCard.classList.add("hidden"); return;
   }
-  
+  const t = translations[currentLang];
+  const labels = t.labels;
+
+  for (let i = 1; i <= 3 && i < daily.time.length; i++) {
+    const item = document.createElement("div");
+    item.className = "forecast-item";
+    const maxTemp = formatTemperature(daily.temperature_2m_max[i]);
+    const minTemp = formatTemperature(daily.temperature_2m_min[i]);
+    const code = daily.weather_code[i];
+
+    // --- احتمال بارش: فقط آیکون + عدد، با رنگ‌بندی ---
+    const precipProbability = daily.precipitation_probability_max
+      ? daily.precipitation_probability_max[i]
+      : null;
+
+    let precipHtml = "";
+    if (precipProbability !== null && precipProbability !== undefined && precipProbability >= 1) {
+      const pct = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 0 }).format(precipProbability);
+      let level = "low";
+      if (precipProbability >= 60) level = "high";
+      else if (precipProbability >= 20) level = "mid";
+
+      precipHtml = `<div class="fc-precip fc-precip-${level}">💧 ${pct}٪</div>`;
+    }
+
+    item.innerHTML = `
+      <div class="fc-emoji">${getWeatherEmoji(code)}</div>
+      <div class="fc-description">${getWeatherDescription(code)}</div>
+      <div class="fc-hours">${labels[i - 1]}</div>
+      <div class="fc-temperatures">
+        <div class="fc-temp-min"><span>${minTemp}</span><small>↓ کمینه</small></div>
+        <div class="fc-temp-max"><span>${maxTemp}</span><small>↑ بیشینه</small></div>
+      </div>
+      ${precipHtml}
+    `;
+
+    forecastRow.appendChild(item);
+  }
+  forecastCard.classList.remove("hidden");
+}
   async function getWeather() {
     if (isLoading) return;
     const city = cityInput.value.trim();
@@ -378,7 +394,7 @@ const translations = {
       
       localStorage.setItem("lastCity", JSON.stringify({ lat: latitude, lon: longitude, name: displayName }));
   
-      const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&wind_speed_unit=kmh&timezone=auto&timeformat=unixtime&forecast_days=4`;
+      const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&wind_speed_unit=kmh&timezone=auto&timeformat=unixtime&forecast_days=4`;
       const weatherRes = await fetch(weatherUrl);
       if (!weatherRes.ok) throw new Error("Network error");
   
