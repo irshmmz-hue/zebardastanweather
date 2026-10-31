@@ -340,46 +340,6 @@ function displayForecast(daily) {
   for (let i = 1; i <= 3 && i < daily.time.length; i++) {
     const item = document.createElement("div");
     item.className = "forecast-item";
-    const maxTemp = formatTemperature(daily.temperature_2m_max[i]);
-    const minTemp = formatTemperature(daily.temperature_2m_min[i]);
-    const code = daily.weather_code[i];
-
-    // بررسی داده‌های بارش
-    const precipProbability = daily.precipitation_probability_max ? daily.precipitation_probability_max[i] : null;
-    
-    let precipHtml = "";
-    if (precipProbability !== null && precipProbability !== undefined && precipProbability >= 1) {
-      const pct = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 0 }).format(precipProbability);
-      let level = "low";
-      if (precipProbability >= 60) level = "high";
-      else if (precipProbability >= 20) level = "mid";
-      
-      // این خط کادر قطره را می‌سازد
-      precipHtml = `<div class="fc-precip fc-precip-${level}">💧 ${pct}٪</div>`;
-    }
-
-    item.innerHTML = `
-      <div class="fc-emoji">${getWeatherEmoji(code)}</div>
-      <div class="fc-description">${getWeatherDescription(code)}</div>
-      <div class="fc-hours">${labels[i - 1]}</div>
-      <div class="fc-temperatures">
-        <div class="fc-temp-min"><span>${minTemp}</span><small>↓ کمینه</small></div>
-        <div class="fc-temp-max"><span>${maxTemp}</span><small>↑ بیشینه</small></div>
-      </div>
-      ${precipHtml}
-    `;
-    forecastRow.appendChild(item);
-  }
-  forecastCard.classList.remove("hidden");
-}
-  
-  forecastRow.innerHTML = "";
-  const t = translations[currentLang];
-  const labels = t.labels;
-
-  for (let i = 1; i <= 3 && i < daily.time.length; i++) {
-    const item = document.createElement("div");
-    item.className = "forecast-item";
     
     const maxTemp = formatTemperature(daily.temperature_2m_max[i]);
     const minTemp = formatTemperature(daily.temperature_2m_min[i]);
