@@ -438,7 +438,7 @@
           else if (precipProbability >= 20) level = "mid";
           precipHtml = `<div class="fc-precip fc-precip-${level}">💧 ${pct}٪</div>`;
         }
-        item.innerHTML = ${precipHtml}`
+                item.innerHTML = `
           <div class="fc-emoji">${getWeatherEmoji(code)}</div>
           <div class="fc-description">${getWeatherDescription(code)}</div>
           <div class="fc-hours">${labels[i - 1]}</div>
@@ -446,6 +446,7 @@
             <div class="fc-temp-min"><span>${minTemp}</span><small>↓ ${currentLang === 'en' ? 'Min' : (currentLang === 'fa' ? 'کمینه' : 'الصغرى')}</small></div>
             <div class="fc-temp-max"><span>${maxTemp}</span><small>↑ ${currentLang === 'en' ? 'Max' : (currentLang === 'fa' ? 'بیشینه' : 'العظمى')}</small></div>
           </div>
+          ${precipHtml}
         `;
         forecastRow.appendChild(item);
       }
