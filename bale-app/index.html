@@ -81,6 +81,10 @@
     .invite-btn { width: 100%; max-width: 380px; margin: 0; padding: 12px; background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: bold; transition: 0.2s; }
     .invite-btn:hover { background: #c8e6c9; }
     .hidden { display: none !important; }
+        .fc-precip { display: inline-block !important; margin-top: 6px; font-size: 0.85em; padding: 2px 8px; border-radius: 10px; font-weight: bold; }
+    .fc-precip.fc-precip-low { color: #9aa5b1 !important; background: rgba(154, 165, 177, 0.15) !important; }
+    .fc-precip.fc-precip-mid { color: #2b8aef !important; background: rgba(43, 138, 239, 0.14) !important; }
+    .fc-precip.fc-precip-high { color: #ffffff !important; background: #2b8aef !important; }
   </style>
 </head>
 <body>
@@ -424,7 +428,16 @@
         const maxTemp = formatTemperature(daily.temperature_2m_max[i]);
         const minTemp = formatTemperature(daily.temperature_2m_min[i]);
         const code = daily.weather_code[i];
-        item.innerHTML = `
+                const precipProbability = daily.precipitation_probability_max ? daily.precipitation_probability_max[i] : null;
+        let precipHtml = "";
+        if (precipProbability !== null && precipProbability !== undefined && precipProbability >= 1) {
+          const pct = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 0 }).format(precipProbability);
+          let level = "low";
+          if (precipProbability >= 60) level = "high";
+          else if (precipProbability >= 20) level = "mid";
+          precipHtml = `<div class="fc-precip fc-precip-${level}">💧 ${pct}٪</div>`;
+        }
+        item.innerHTML = ${precipHtml}`
           <div class="fc-emoji">${getWeatherEmoji(code)}</div>
           <div class="fc-description">${getWeatherDescription(code)}</div>
           <div class="fc-hours">${labels[i - 1]}</div>
@@ -462,7 +475,7 @@
         lastCoords = { lat: latitude, lon: longitude };
         localStorage.setItem("lastCity", JSON.stringify({ lat: latitude, lon: longitude, name: displayName }));
 
-        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&wind_speed_unit=kmh&timezone=auto&timeformat=unixtime&forecast_days=4`;
+        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&wind_speed_unit=kmh&timezone=auto&timeformat=unixtime&forecast_days=4`;
         const weatherRes = await fetch(weatherUrl);
         if (!weatherRes.ok) throw new Error("Network error");
 
