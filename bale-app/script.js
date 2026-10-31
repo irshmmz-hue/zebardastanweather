@@ -324,11 +324,7 @@ const translations = {
     }
   }
   
-function displayForecast(daily) {
-  forecastRow.innerHTML = "";
-  if (!daily?.time || !daily?.weather_code || !daily?.temperature_2m_max || !daily?.temperature_2m_min) {
-    forecastCard.classList.add("hidden"); return;
-  }
+currentLang}&format=json`;      const res = await fetch(url);      if (!res.ok) throw new Error("Network error");      const data = await res.json();      if (data.results?.length) return data.results;    }    return [];  }    async function fetchCitySuggestions(query, requestId) {    if (requestId !== suggestionRequestId || isLoading) return;    if (normalizeCityName(query).length < 2) { hideSuggestions(); return; }    try {      const results = await searchCities(query);      if (requestId !== suggestionRequestId || isLoading) return;      const seen = new Set();      const filtered = results.filter((item) => {        const isCity = item.feature_code?.startsWith("PPL");        if (!isCity) return false;        const key = `${item.name}|${item.country}|${item.admin1 || ""}`;        if (seen.has(key)) return false;        seen.add(key); return true;      });      if (filtered.length === 0) { hideSuggestions(); return; }            const fragment = document.createDocumentFragment();      filtered.slice(0, 5).forEach((item) => {        const div = document.createElement("div");        div.className = "suggestion-item";        div.textContent = buildDisplayName(item);        div.addEventListener("click", () => {          selectedLocation = { lat: item.latitude, lon: item.longitude, name: buildDisplayName(item) };          cityInput.value = item.name;          hideSuggestions();          getWeather();        });        fragment.appendChild(div);      });        suggestionsBox.innerHTML = "";      suggestionsBox.appendChild(fragment);      suggestionsBox.classList.remove("hidden");    } catch {      if (requestId === suggestionRequestId) hideSuggestions();    }  }    // ============================================  // دریافت اوقات شرعی  // ============================================  async function fetchPrayerTimes(lat, lon) {    try {
   const t = translations[currentLang];
   const labels = t.labels;
 
